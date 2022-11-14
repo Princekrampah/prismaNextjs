@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// attributes start with the @ symbol
+model User {
+  id             String  @id @default(uuid())
+  age            Int
+  name           String  @unique
+  email          String  @unique
+  isAdmin        Boolean @default(false)
+  // we can use ? for optional fields, the other of the two
+  // types of field modifier is the []
+  WrittenPosts   Post[]  @relation("writtenPost")
+  favoritedPosts Post[]  @relation("favoritePost")
+
+  // block level attributes
+  // @@id([id])
+}
+
+model Post {
+  id            String   @id @default(uuid())
+  title         String
+  rating        Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  author        User     @relation("writtenPost", fields: [authorId], references: [id])
+  authorId      String
+  FavoritedBy   User?    @relation("favoritePost", fields: [FavoritedById], references: [id])
+  FavoritedById String?
+}
